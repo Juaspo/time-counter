@@ -26,7 +26,7 @@ same_day = 1
 working = 0
 file_name = ""
 log_intro = ""
-id_number = ""
+id_number = "000000000"
 action_mode = ("Stopped", "Started", "Running", "No data", "Aborted")
 
 debug_test_variable = 0
@@ -96,6 +96,7 @@ def initiate_parameters():
     global log_intro
     global int_month
     global counterThread
+    global start_time
     
     day = time.strftime("%a")
     date = get_date()
@@ -105,6 +106,7 @@ def initiate_parameters():
     log_intro = "Log file: " + str(date).zfill(2) + " " + month + " " + year + "\n"
     file_name = "logTime_" + str(int_month).zfill(2) + "-" + str(year) + ".txt"
     time_value = time_conversion(get_time())
+    start_time = time_value
     same_day = 0;
     
 
@@ -165,18 +167,17 @@ def begin_clocking(msg = ""):
     global id_number
     global date
     global int_month
-    global start_time
     global temp_time_value
     global time_value
     
     if working == 0:
         initiate_parameters()
-        start_time = time_value
+        
         id_number = str(date) + str(int_month).zfill(2) + str(time_value)
         working = 1
+        store_time_date(1, msg)
         try:
             counterThread.start()
-            store_time_date(1, msg)
             #threading.Thread(target=running).start()
         except:
             print ("Error: unable to start thread")
@@ -273,13 +274,13 @@ def check_time():
     temp_time_value = time_conversion(get_time())
     
     #check if time now (temp_time_value) is greater than last checked time
-    if temp_time_value > time_value:
+    if temp_time_value >= time_value:
         #check if time now exceed time delay limit for time check
         if temp_time_value > (time_value + time_delay_limit):
             #Delay is more than timeout approved delay
             stamp_time(0, "timeout")
             working=0;
-            begin_clocking()
+            begin_clocking("Rerun")
             time_value = temp_time_value
         
         #time is within time check delay limit

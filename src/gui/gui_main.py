@@ -21,7 +21,7 @@ mp = main_program
 cc = computer_control
 
 top = Tk()
-top.minsize(width=250, height=100) 
+top.minsize(width=250, height=150) 
 #top.geometry("100x100")
 frame = Frame(top)
 frame.pack()
@@ -53,9 +53,16 @@ def stop_clocking():
     print ("end clocking")
     label.config(text = "Stopped")
     mp.end_clocking("user")
+    
+def goto_sleep():
+    print ("going to sleep mode... Good night!")
+    label.config(text = "Sleep")
+    cc.put_to_sleep()
 
 label = Label(frame, text="Welcome!", fg="black", font="Verdana 30 bold") 
 label.pack() 
+
+
 
 btn = Button(frame, text = "Start", width = 15, command = run_clocking)
 btn.pack()
@@ -63,10 +70,12 @@ btn.pack()
 b = Button(frame, text="End", width = 15, command = stop_clocking)
 b.pack()
 
+btn = Button(frame, text = "Sleep", width = 15, command = goto_sleep)
+btn.pack()
+
 b = Button(frame, text="Exit", width = 15, command = quit)
 b.pack()
 
 #btn.place(x=50, y=50)
 top.mainloop()
 
-#computer_control.put_to_sleep()
