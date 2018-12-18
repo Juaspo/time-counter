@@ -27,7 +27,7 @@ working = 0
 file_name = ""
 log_intro = ""
 id_number = ""
-action_mode = ("Stopped", "Started", "Running", "No data")
+action_mode = ("Stopped", "Started", "Running", "No data", "Aborted")
 
 debug_test_variable = 0
 
@@ -38,6 +38,8 @@ debug_counter = 0
 #max allowed time passed between checks to not trigger sleep mode
 time_delay_limit = 10
 
+def is_working():
+    return working
 
 class StoppableThread(threading.Thread):
     """Thread class with a stop() method. The thread itself has to check
