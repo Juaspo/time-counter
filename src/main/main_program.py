@@ -92,7 +92,6 @@ def initiate_parameters():
     global same_day
     global file_name
     global log_intro
-    #global id_number
     global int_month
     global counterThread
     
@@ -186,7 +185,6 @@ def begin_clocking(msg = ""):
         return False
     
     
-    
 def end_clocking(msg = ""):
     global working
     global time_value
@@ -217,6 +215,7 @@ def onExit():
 
 def stamp_time(action, msg):
     work_time = ""
+    temp_time_value = time_conversion(get_time())
     work_time = get_time_diff(temp_time_value, start_time)
     store_time_date(action, msg, work_time)
     
@@ -277,6 +276,7 @@ def check_time():
         if temp_time_value > (time_value + time_delay_limit):
             #Delay is more than timeout approved delay
             stamp_time(0, "timeout")
+            working=0;
             begin_clocking()
             time_value = temp_time_value
         
@@ -314,25 +314,3 @@ def log_to_file(s):
     
     fo.write(s + "\n")
     fo.close()
-    
-'''
-def init_program():
-    initiate_parameters()
-    x = ""
-    
-    while x != "q":
-        print("Welcome to TimeCounter. Choose option: 1:Start counter 2:Stop Counter 3:Show Time Q:Exit ")
-        x = input("#:")
-        if x == "1":
-            start_thread()
-        elif x == "2":
-            print("value of x:", x)
-            end_clocking()
-        else:
-            print("value of x:", x)
-
-#init_program()
-
-#next to fix is to add save of timestamps-
-
-'''
