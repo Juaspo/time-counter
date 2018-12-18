@@ -54,12 +54,10 @@ class StoppableThread(threading.Thread):
         self._stop_event.set()
 
     def stopped(self):
-        print("thread stopped?", self._stop_event.is_set())
         return self._stop_event.is_set()
     
     def run(self):
         print("Thread running!")
-        
         while (not self.stopped()):
             running("Kimpa")
             time.sleep(1)

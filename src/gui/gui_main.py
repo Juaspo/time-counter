@@ -78,4 +78,3 @@ b.pack()
 
 #btn.place(x=50, y=50)
 top.mainloop()
-
