@@ -36,10 +36,13 @@ sleep_time = 2
 debug_counter = 0
 
 #max allowed time passed between checks to not trigger sleep mode
-time_delay_limit = 10
+time_delay_limit = 600
 
 def is_working():
     return working
+
+def time_value_content():
+    return convert_to_time(time_value)
 
 class StoppableThread(threading.Thread):
     """Thread class with a stop() method. The thread itself has to check
@@ -57,10 +60,14 @@ class StoppableThread(threading.Thread):
         return self._stop_event.is_set()
     
     def run(self):
+        global working
+        
+        working = 1
         print("Thread running!")
         while (not self.stopped()):
             running("Kimpa")
             time.sleep(1)
+        working = 0
             
 
 counterThread = StoppableThread()
@@ -172,7 +179,6 @@ def begin_clocking(msg = ""):
         initiate_parameters()
         
         id_number = str(date) + str(int_month).zfill(2) + str(time_value)
-        working = 1
         store_time_date(1, msg)
         try:
             counterThread.start()
@@ -182,7 +188,7 @@ def begin_clocking(msg = ""):
         return True
         
     else:
-        stamp_time(2, msg)
+        stamp_time(2, False, msg)
         return False
     
     
@@ -193,8 +199,7 @@ def end_clocking(msg = ""):
     global counterThread
     
     if working != 0:
-        working = 0
-        stamp_time(0, msg)
+        stamp_time(0, False, msg)
         
         counterThread.stop()
         counterThread.join()
@@ -204,7 +209,7 @@ def end_clocking(msg = ""):
         return True
         
     else:
-        stamp_time(3, msg)
+        stamp_time(3, False, msg)
         return False
     
 def onExit():
@@ -214,9 +219,13 @@ def onExit():
     else:
         print("thread is running terminated")
 
-def stamp_time(action, msg):
+def stamp_time(action, timeout, msg = ""):
     work_time = ""
-    temp_time_value = time_conversion(get_time())
+    if timeout:
+        temp_time_value = time_value
+    else:
+        temp_time_value = time_conversion(get_time())
+        
     work_time = get_time_diff(temp_time_value, start_time)
     store_time_date(action, msg, work_time)
     
@@ -240,8 +249,7 @@ def new_day():
     
     #New day confirmed so check if limit passed over 23:59-00:00 mark
     if temp_time_value + time_value_adjustment > (time_value + time_delay_limit):
-        stamp_time(0, "timeout")
-        working = 0;
+        stamp_time(0, True, "timeout")
         begin_clocking("new-day")
         #date = temp_date #remove this (debug stuff)
         
@@ -276,8 +284,7 @@ def check_time():
         #check if time now exceed time delay limit for time check
         if temp_time_value > (time_value + time_delay_limit):
             #Delay is more than timeout approved delay
-            stamp_time(0, "timeout")
-            working=0;
+            stamp_time(0, True, "timeout")
             begin_clocking("Rerun")
             time_value = temp_time_value
         

@@ -3,11 +3,13 @@ Created on 23 nov. 2018
 
 @author: ezasaju
 '''
+import time
 
 from tkinter import *
 from tkinter import messagebox
-from main import main_program
-from main import computer_control
+
+import main.main_program as mp
+import main.computer_control as cc
 
 
 #import tkinter
@@ -17,8 +19,6 @@ from main import computer_control
 if __name__ == '__main__':
     pass
 
-mp = main_program
-cc = computer_control
 
 top = Tk()
 top.minsize(width=250, height=150) 
@@ -40,19 +40,35 @@ def quit():
     else:
         print ("good bye")
         top.destroy()
+        
     #msg = messagebox.showinfo("Hi", "Hello World!")
 
 
 def run_clocking():
-    print ("start clocking")
-    label.config(text = "Clocking")
-    mp.begin_clocking("user")
+    if(mp.is_working()):
+        mp.end_clocking("user")
+        start_btn.config(text = "Start")
+        txt = mp.time_value_content()
+        label.config(text = txt, bg="#e00")
+    else:
+        mp.begin_clocking("user")
+        start_btn.config(text = "Stop")
+        txt = mp.time_value_content()
+        label.config(text = txt, bg="#0e0")
+    
+    time.sleep(0.05)
     
     
-def stop_clocking():
-    print ("end clocking")
-    label.config(text = "Stopped")
-    mp.end_clocking("user")
+def timestamp():
+    action_type = 3
+    
+    #if in running mode change action to "Running"
+    if (mp.is_working()):
+        action_type = 2
+        
+    print ("Timestamp")
+    mp.stamp_time(action_type, 0, "Timestamp")
+    
     
 def goto_sleep():
     print ("going to sleep mode... Good night!")
@@ -62,19 +78,20 @@ def goto_sleep():
 label = Label(frame, text="Welcome!", fg="black", font="Verdana 30 bold") 
 label.pack() 
 
+e1 = Entry(frame, width = 15)
+e1.pack()
 
+start_btn = Button(frame, text = "Start", width = 15, command = run_clocking)
+start_btn.pack()
 
-btn = Button(frame, text = "Start", width = 15, command = run_clocking)
-btn.pack()
+stamp_btn = Button(frame, text="Timestamp", width = 15, command = timestamp)
+stamp_btn.pack()
 
-b = Button(frame, text="End", width = 15, command = stop_clocking)
-b.pack()
+sleep_btn = Button(frame, text = "Sleep", width = 15, command = goto_sleep)
+sleep_btn.pack()
 
-btn = Button(frame, text = "Sleep", width = 15, command = goto_sleep)
-btn.pack()
-
-b = Button(frame, text="Exit", width = 15, command = quit)
-b.pack()
+exit_btn = Button(frame, text="Exit", width = 15, command = quit)
+exit_btn.pack()
 
 #btn.place(x=50, y=50)
 top.mainloop()

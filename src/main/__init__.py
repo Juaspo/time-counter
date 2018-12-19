@@ -1,1 +1,2 @@
-from main.main_program import begin_clocking, end_clocking
+from main import main_program
+from main import computer_control
