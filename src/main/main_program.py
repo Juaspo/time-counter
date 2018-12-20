@@ -146,8 +146,6 @@ def convert_to_time(t):
     m=int((t-h*3600)/60)
     s=t-h*3600-m*60
     str_time = (str(h).zfill(2) + ":" + str(m).zfill(2) + ":" + str(s).zfill(2))
-    
-    print ("time t:", t, "converts to:", str_time)
     return str_time
 
 def store_time_date(action, msg, work_time = "--:--:--"):
@@ -220,7 +218,7 @@ def onExit():
         print("thread is running still")
         counterThread.stop()
     else:
-        print("thread is running terminated")
+        print("thread terminated")
 
 def stamp_time(action, timeout, msg = ""):
     work_time = ""
@@ -252,8 +250,8 @@ def new_day():
     day = time.strftime("%a") #update day for log
     temp_time_value = time_conversion(get_time())
     
-    print("temmp", temp_time_value, "time adju:", time_value_adjustment, "time_value", time_value, "delay", time_delay_limit)
-    print("if result:", str((temp_time_value + time_value_adjustment)), "and:", str((time_value + time_delay_limit)))
+    #print("temmp", temp_time_value, "time adju:", time_value_adjustment, "time_value", time_value, "delay", time_delay_limit)
+    #print("if result:", str((temp_time_value + time_value_adjustment)), "and:", str((time_value + time_delay_limit)))
     #New day confirmed so check if limit passed over 23:59-00:00 mark
     if (temp_time_value + time_value_adjustment) > (time_value + time_delay_limit):
         stamp_time(0, True, "timeout")
@@ -301,8 +299,7 @@ def check_time():
     
     #Somehow temp_time_value is less than time_value which should be handled by new day so something is wrong if this is entered
     else:
-        print ("Something went wrong!", time_value, "new", temp_time_value)
-        
+        print("Something went wrong!", time_value, "new", temp_time_value)
 
 #Loop of regular checks if system is still active
 def running(threadName = "Kim"):
@@ -319,7 +316,7 @@ def log_to_file(s):
     # Open a file
     global file_name
     
-    print("File!!", file_name, "content:", s)
+    #print("File!!", file_name, "content:", s)
     fo = open(file_name, "a")
     
     if os.stat(file_name).st_size == 0:
