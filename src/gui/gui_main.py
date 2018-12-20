@@ -26,6 +26,7 @@ top.minsize(width=250, height=150)
 frame = Frame(top)
 frame.pack()
 
+
 mp.initiate_parameters()
 
 
@@ -87,23 +88,32 @@ def debugging_stuff():
 label = Label(frame, text="Welcome!", fg="black", font="Verdana 30 bold") 
 label.pack() 
 
-text_entry = Entry(frame, width = 15)
-text_entry.pack()
 
-start_btn = Button(frame, text = "Start", width = 15, command = run_clocking)
+
+start_btn = Button(frame, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_clocking)
 start_btn.pack()
+
+frame2 = Frame(frame)
+frame2.pack()
+
+text_entry = Entry(frame2, width = 15)
+text_entry.grid(row = 0, column = 0)
+#text_entry.pack()
 
 debug_btn = Button(frame, text = "Debugging", width = 15, command = debugging_stuff)
 debug_btn.pack()
 
-stamp_btn = Button(frame, text="Timestamp", width = 15, command = timestamp)
-stamp_btn.pack()
+stamp_btn = Button(frame2, text="Timestamp", width = 15, command = timestamp)
+stamp_btn.grid(row = 1, column = 0)
+#stamp_btn.pack()
 
-sleep_btn = Button(frame, text = "Sleep", width = 15, command = goto_sleep)
-sleep_btn.pack()
+sleep_btn = Button(frame2, text = "Sleep", width = 15, command = goto_sleep)
+sleep_btn.grid(row = 0, column = 1)
+#sleep_btn.pack()
 
-exit_btn = Button(frame, text="Exit", width = 15, command = quit)
-exit_btn.pack()
+exit_btn = Button(frame2, text="Exit", width = 15, command = quit)
+exit_btn.grid(row = 1, column = 1)
+#exit_btn.pack()
 
 #btn.place(x=50, y=50)
 top.mainloop()
