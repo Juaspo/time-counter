@@ -1,0 +1,1 @@
+python -m gui.gui_main -s Autostart
