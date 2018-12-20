@@ -162,7 +162,6 @@ def store_time_date(action, msg, work_time = "--:--:--"):
     data_to_store = ""
     data_to_store = day + "\t" + str(date) + "/" + month + "/" + str(year) + "\t" + id_number + "\t" + convert_to_time(time_value) + "\t" + work_time + "\t" + action_mode[action] + "\t" + msg
     
-    print("id:", id_number)
     time_array.append(data_to_store)
     log_to_file(data_to_store)
 
@@ -225,13 +224,17 @@ def onExit():
 
 def stamp_time(action, timeout, msg = ""):
     work_time = ""
-    if timeout:
-        temp_time_value = time_value
+    
+    if (id_number != "000000000"):
+        if timeout:
+            temp_time_value = time_value
+        else:
+            temp_time_value = time_conversion(get_time())
+            
+        work_time = get_time_diff(temp_time_value, start_time)
+        store_time_date(action, msg, work_time)
     else:
-        temp_time_value = time_conversion(get_time())
-        
-    work_time = get_time_diff(temp_time_value, start_time)
-    store_time_date(action, msg, work_time)
+        store_time_date(action, msg)
     
 
 def get_date():
