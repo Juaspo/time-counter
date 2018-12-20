@@ -33,7 +33,7 @@ def quit():
     if (mp.is_working()):
         MsgBox = messagebox.askyesno("Exit Application","Are you sure you want to exit the application", icon = "warning")
         if (MsgBox):
-            mp.stamp_time(4, "user")
+            mp.stamp_time(4, False, "user")
             top.destroy()
         else:
             print("Exit aborted")
@@ -67,22 +67,34 @@ def timestamp():
         action_type = 2
         
     print ("Timestamp")
-    mp.stamp_time(action_type, 0, "Timestamp")
+    input = text_entry.get()
+    if input =="":
+        input = "Timestamp"
+    mp.stamp_time(action_type, False, input)
     
     
 def goto_sleep():
     print ("going to sleep mode... Good night!")
     label.config(text = "Sleep")
     cc.put_to_sleep()
+    
+    
+def debugging_stuff():
+    print ("changing date")
+    txt = mp.change_Date()
+    label.config(text = txt)
 
 label = Label(frame, text="Welcome!", fg="black", font="Verdana 30 bold") 
 label.pack() 
 
-e1 = Entry(frame, width = 15)
-e1.pack()
+text_entry = Entry(frame, width = 15)
+text_entry.pack()
 
 start_btn = Button(frame, text = "Start", width = 15, command = run_clocking)
 start_btn.pack()
+
+debug_btn = Button(frame, text = "Debugging", width = 15, command = debugging_stuff)
+debug_btn.pack()
 
 stamp_btn = Button(frame, text="Timestamp", width = 15, command = timestamp)
 stamp_btn.pack()

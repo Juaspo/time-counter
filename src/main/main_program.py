@@ -38,6 +38,12 @@ debug_counter = 0
 #max allowed time passed between checks to not trigger sleep mode
 time_delay_limit = 600
 
+def change_Date():
+    global date
+    date = date - 1
+    return date
+    
+
 def is_working():
     return working
 
@@ -175,21 +181,19 @@ def begin_clocking(msg = ""):
     global temp_time_value
     global time_value
     
-    if working == 0:
-        initiate_parameters()
-        
-        id_number = str(date) + str(int_month).zfill(2) + str(time_value)
-        store_time_date(1, msg)
+    initiate_parameters()
+    
+    id_number = str(date) + str(int_month).zfill(2) + str(time_value)
+    store_time_date(1, msg)
+    if not counterThread.isAlive():
         try:
             counterThread.start()
             #threading.Thread(target=running).start()
         except:
             print ("Error: unable to start thread")
         return True
-        
     else:
-        stamp_time(2, False, msg)
-        return False
+        print ("Thread already running")
     
     
 def end_clocking(msg = ""):
@@ -233,7 +237,6 @@ def stamp_time(action, timeout, msg = ""):
 def get_date():
     return int(time.strftime("%d"))
 
-
 def new_day():
     global date
     global temp_date
@@ -242,17 +245,17 @@ def new_day():
     global temp_time_value
     global working
     
-    time_value_adjustment = 86400 #86400 for 24h next day adjustment
-    
-    day = time.strftime("%a")
+    time_value_adjustment = (temp_date - date) * 86400 #86400 for 24h adjustment times number of days between current and last check
+    day = time.strftime("%a") #update day for log
     temp_time_value = time_conversion(get_time())
     
+    print("temmp", temp_time_value, "time adju:", time_value_adjustment, "time_value", time_value, "delay", time_delay_limit)
+    print("if result:", str((temp_time_value + time_value_adjustment)), "and:", str((time_value + time_delay_limit)))
     #New day confirmed so check if limit passed over 23:59-00:00 mark
-    if temp_time_value + time_value_adjustment > (time_value + time_delay_limit):
+    if (temp_time_value + time_value_adjustment) > (time_value + time_delay_limit):
         stamp_time(0, True, "timeout")
         begin_clocking("new-day")
         #date = temp_date #remove this (debug stuff)
-        
     else:
         #print("No limit passed ::new day:: time difference:", temp_time_value+time_value_adjustment-time_value, "tmp", temp_time_value, "time:", time_value, "debug nr:", debug_counter)
         time_value = temp_time_value
@@ -264,8 +267,8 @@ def check_date():
     global date
     global same_day
     temp_date = get_date()
-        
-    if date != temp_date:
+    
+    if temp_date != date:
         new_day()
         return (0)
     return(1)
