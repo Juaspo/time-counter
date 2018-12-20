@@ -90,8 +90,10 @@ def goto_sleep():
     
 def debugging_stuff():
     print ("changing date")
-    txt = mp.change_Date()
+    #txt = mp.change_Date()
+    txt = mp.change_time()
     label.config(text = txt)
+    #mp.convert_to_ericsson_time("07:59:01")
     
     
 label = Label(frame, text="Welcome!", fg="black", font="Verdana 30 bold") 

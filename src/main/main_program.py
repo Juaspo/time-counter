@@ -6,6 +6,7 @@ Created on 23 nov. 2018
 import time
 import os
 import threading
+import re
 
 #from main import thread_handler
 
@@ -28,6 +29,7 @@ file_name = ""
 log_intro = ""
 id_number = "000000000"
 action_mode = ("Stopped", "Started", "Running", "No data", "Aborted")
+ericsson_time = 0
 
 debug_test_variable = 0
 
@@ -42,7 +44,13 @@ def change_Date():
     global date
     date = date - 1
     return date
+
+def change_time():
+    global date
+    global start_time
     
+    start_time -= 300
+    return start_time
 
 def is_working():
     return working
@@ -121,15 +129,29 @@ def initiate_parameters():
     same_day = 0;
     
 
+def convert_to_ericsson_time(time_in):
+    #get time as string and split it up as separate ints
+    k = [int(s) for s in re.findall(r'\b\d+\b', time_in)]
+    hr = k[0]
+    min = k[1]
+    sec = k[2]
+    
+    if sec>30:
+        min+=1
+    
+    min = int(round(min/60*100, 0))
+    if min == 100:
+        hr += 1
+        min = 0
+    
+    #Add trailing zero if value less than 10 for uniform output
+    etime = str(hr) + "," + str(min).zfill(2)
+    return etime
+    
 
 #Converts time to a decimal number between 0 (00:00:00) and 86399 (23:59:59)
 def time_conversion(t):
-    global debug_counter
-    global debug_test_variable
-    global time_value
-    
     return (t[0]*3600+t[1]*60+t[2])
-
 
 def get_time():
     t = [int(time.strftime("%H")), int(time.strftime("%M")), int(time.strftime("%S"))] 
@@ -156,9 +178,17 @@ def store_time_date(action, msg, work_time = "--:--:--"):
     global time_array
     global time_value
     global id_number
+    global ericsson_time
+    
+    if work_time == "--:--:--":
+        ericsson_time = "--:--"
+    else:
+        ericsson_time = convert_to_ericsson_time(work_time)
+    
+    print("E// time", ericsson_time)
     
     data_to_store = ""
-    data_to_store = day + "\t" + str(date) + "/" + month + "/" + str(year) + "\t" + id_number + "\t" + convert_to_time(time_value) + "\t" + work_time + "\t" + action_mode[action] + "\t" + msg
+    data_to_store = day + "\t" + str(date) + "/" + month + "/" + str(year) + "\t" + id_number + "\t" + convert_to_time(time_value) + "\t" + work_time + "\t" + ericsson_time + "\t" + action_mode[action] + "\t" + msg
     
     time_array.append(data_to_store)
     log_to_file(data_to_store)
@@ -321,7 +351,7 @@ def log_to_file(s):
     
     if os.stat(file_name).st_size == 0:
         fo.write(log_intro)
-        fo.write("day\tdate\t\tid number\ttime\t\twork time\taction\tmessage\n")
+        fo.write("day\tdate\t\tid number\ttime\t\twork time\tE///\taction\tmessage\n")
     
     fo.write(s + "\n")
     fo.close()
