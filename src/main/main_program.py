@@ -339,7 +339,7 @@ def running(threadName = "Kim"):
     
     if(check_date()):
         check_time()
-    debug_counter += 1
+    #debug_counter += 1
     
 
 def log_to_file(s):
