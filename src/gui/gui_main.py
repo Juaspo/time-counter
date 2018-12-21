@@ -8,6 +8,7 @@ import sys, getopt
 
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 
 import main.main_program as mp
 import main.computer_control as cc
@@ -23,10 +24,33 @@ take_timestamp = False
 
 
 top = Tk()
-top.minsize(width=250, height=150) 
+top.minsize(width=250, height=150)
+
+top.title("Time counter")
+
+tabControl = ttk.Notebook(top)          # Create Tab Control
+tab1 = ttk.Frame(tabControl)            # Create a tab 
+tabControl.add(tab1, text='Main')      # Add the tab
+tabControl.pack(expand=1, fill="both")  # Pack to make visible
+tab2 = ttk.Frame(tabControl)            # Create a tab 
+tabControl.add(tab2, text='Conversion')      # Add the tab
+tabControl.pack(expand=1, fill="both")  # Pack to make visible
+
 #top.geometry("100x100")
-frame = Frame(top)
+frame = Frame(tab1)
 frame.pack()
+
+frame1 = Frame(frame)
+frame1.pack()
+
+frame21 = Frame(tab2)
+frame21.pack()
+
+frame2 = Frame(frame)
+frame2.pack()
+
+frame3 = Frame(tab2)
+frame3.pack()
 
 
 
@@ -88,22 +112,50 @@ def goto_sleep():
     cc.put_to_sleep()
     
     
+def get_time_difference():
+    
+    input_start = mp.time_conversion(text_entry_start.get(), True)
+    input_end = mp.time_conversion(text_entry_end.get(), True)
+    
+    print("Get time diff", input_start, input_end)
+    
+    if input_start is None:
+        text_entry_start.config(fg = "red")
+    elif input_end is None:
+        text_entry_end.config(fg = "red")
+    else:
+        text_entry_end.config(fg = "black")
+        text_entry_start.config(fg = "black")
+        
+        result = mp.get_time_diff(input_start, input_end)
+        eresult = mp.convert_to_ericsson_time(result)
+    
+        duration_result_label.configure(state="normal")
+        duration_result_label.delete(1.0, END)
+        duration_result_label.insert(1.0, result)
+        duration_result_label.configure(state="disabled")
+        
+        ericsson_result_label.configure(state="normal")
+        ericsson_result_label.delete(1.0, END)
+        ericsson_result_label.insert(1.0, eresult)
+        ericsson_result_label.configure(state="disabled")
+    
+    
 def debugging_stuff():
     print ("changing date")
     #txt = mp.change_Date()
-    txt = mp.change_time()
-    label.config(text = txt)
+    #txt = mp.change_time()
+    #label.config(text = txt)
+    text_entry_start.insert(0, "12:05:15")
+    text_entry_end.insert(0, "12:15:35")
     #mp.convert_to_ericsson_time("07:59:01")
     
     
-label = Label(frame, text="Welcome!", fg="black", font="Verdana 30 bold") 
+label = Label(frame1, text="Welcome!", fg="black", font="Verdana 30 bold") 
 label.pack() 
 
-start_btn = Button(frame, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_clocking)
+start_btn = Button(frame1, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_clocking)
 start_btn.pack()
-
-frame2 = Frame(frame)
-frame2.pack()
 
 text_entry = Entry(frame2, width = 15)
 text_entry.grid(row = 0, column = 0)
@@ -124,6 +176,35 @@ exit_btn = Button(frame2, text="Exit", width = 15, command = quit)
 exit_btn.grid(row = 1, column = 1)
 #exit_btn.pack()
 
+
+text_entry_start = Entry(frame3, width = 15)
+text_entry_start.grid(row = 0, column = 0)
+
+text_entry_end = Entry(frame3, width = 15)
+text_entry_end.grid(row = 1, column = 0)
+
+diff_btn = Button(frame3, text="calculate", width = 15, command = get_time_difference)
+diff_btn.grid(row = 0, column = 1)
+
+label_etime = Label(frame3, text="Welcome!", fg="black") 
+label_etime.grid(row = 1, column = 1)
+
+work_duration_label = Label(frame21, anchor = "w", text="Work duration", fg="black", width = 15) 
+work_duration_label.grid(row = 0, column = 0)
+
+ericsson_time_label = Label(frame21, anchor = "w", text="Ericsson time", fg="black", width = 15) 
+ericsson_time_label.grid(row = 1, column = 0)
+
+
+duration_result_label = Text(frame21, height = 1, borderwidth = 0, width = 15) 
+duration_result_label.insert(1.0, "--:--:--")
+duration_result_label.grid(row = 0, column = 1)
+duration_result_label.configure(state="disabled")
+
+ericsson_result_label = Text(frame21, height = 1, borderwidth = 0, width = 15)
+ericsson_result_label.insert(1.0, "--:--")
+ericsson_result_label.grid(row = 1, column = 1)
+ericsson_result_label.configure(state="disabled")
 
 mp.initiate_parameters()
     
@@ -159,5 +240,3 @@ if __name__ == '__main__':
 
 #btn.place(x=50, y=50)
 top.mainloop()
-
-

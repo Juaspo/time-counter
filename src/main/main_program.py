@@ -40,11 +40,12 @@ debug_counter = 0
 #max allowed time passed between checks to not trigger sleep mode
 time_delay_limit = 600
 
+#debug function
 def change_Date():
     global date
     date = date - 1
     return date
-
+#debug funktion
 def change_time():
     global date
     global start_time
@@ -52,11 +53,13 @@ def change_time():
     start_time -= 300
     return start_time
 
+#Check if periodic checks is running
 def is_working():
     return working
 
 def time_value_content():
     return convert_to_time(time_value)
+
 
 class StoppableThread(threading.Thread):
     """Thread class with a stop() method. The thread itself has to check
@@ -150,11 +153,22 @@ def convert_to_ericsson_time(time_in):
     
 
 #Converts time to a decimal number between 0 (00:00:00) and 86399 (23:59:59)
-def time_conversion(t):
-    return (t[0]*3600+t[1]*60+t[2])
+def time_conversion(t, is_string = False):
+    t2 = []
+    
+    if is_string is True:
+        t2 = [int(s) for s in re.findall(r'\b\d+\b',t)]
+    else:
+        t2 = t
+        
+    if len(t2) < 3:
+        return None
+        
+    print(t2)
+    return (t2[0]*3600+t2[1]*60+t2[2])
 
 def get_time():
-    t = [int(time.strftime("%H")), int(time.strftime("%M")), int(time.strftime("%S"))] 
+    t = [int(time.strftime("%H")), int(time.strftime("%M")), int(time.strftime("%S"))]
     return t
 
 #Takes in time as decimal and returns time value as string
@@ -193,7 +207,7 @@ def store_time_date(action, msg, work_time = "--:--:--"):
     time_array.append(data_to_store)
     log_to_file(data_to_store)
 
-def get_time_diff(current_time_value, saved_time_value):
+def get_time_diff(saved_time_value, current_time_value):
     if current_time_value < saved_time_value:
         return convert_to_time((current_time_value + 86400) - saved_time_value)
     else:
@@ -259,7 +273,7 @@ def stamp_time(action, timeout, msg = ""):
         else:
             temp_time_value = time_conversion(get_time())
             
-        work_time = get_time_diff(temp_time_value, start_time)
+        work_time = get_time_diff(start_time, temp_time_value)
         store_time_date(action, msg, work_time)
     else:
         store_time_date(action, msg)
