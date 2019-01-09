@@ -39,7 +39,7 @@ debug_counter = 0
 
 #max allowed time passed between checks to not trigger sleep mode
 time_delay_limit = 9000
-soft_delay_limit = 100
+soft_delay_limit = 30
 
 #debug function
 def change_Date():
@@ -51,8 +51,9 @@ def change_Date():
 def change_time():
     global date
     global start_time
+    global time_value
     
-    start_time -= 300
+    time_value -= 300
     return start_time
 
 #Check if periodic checks is running
@@ -306,6 +307,8 @@ def new_day():
         
     elif(temp_time_value + time_value_adjustment) > (time_value + soft_delay_limit):
         stamp_time(2, True, "soft timeout")
+        time_value = temp_time_value
+        date = temp_date
         stamp_time(2, False, "new-day soft timeout")
         
     else:
@@ -346,7 +349,9 @@ def check_time():
         elif temp_time_value > (time_value + soft_delay_limit):
             #Delay is more than soft timeout approved delay
             stamp_time(2, True, "soft timeout")
+            time_value = temp_time_value
             stamp_time(2, False, "soft resume")
+            
         
         #time is within time check delay limit
         else:

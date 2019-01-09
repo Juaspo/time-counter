@@ -206,11 +206,11 @@ def change_buttons():
         
     
 def debugging_stuff():
-    print ("changing date")
+    print ("changing time")
     #txt = mp.change_Date()
     
     txt = mp.change_time()
-    label.config(text = txt)
+    label.config(text = mp.convert_to_time(txt))
     
     #text_entry_start.insert(0, "12:05:15")
     #text_entry_end.insert(0, "12:15:35")
