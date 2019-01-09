@@ -13,6 +13,7 @@ from tkinter import ttk
 import main.main_program as mp
 import main.computer_control as cc
 from _overlapped import NULL
+from pip._vendor.html5lib import _inputstream
 
 
 #import tkinter
@@ -52,6 +53,30 @@ frame2.pack()
 frame3 = Frame(tab2)
 frame3.pack()
 
+alternative_buttons = False
+
+
+def btn0_action():
+    if (alternative_buttons):
+        goto_sleep()
+    else:
+        timestamp()
+
+def btn1_action():
+    if (alternative_buttons):
+        shutdown_pc()
+    else:
+        clear_field()
+
+def btn2_action():
+    if (alternative_buttons):
+        quit()
+    else:
+        debugging_stuff()
+
+
+def btn3_action():
+    change_buttons()
 
 
 
@@ -70,6 +95,12 @@ def quit():
         
     #msg = messagebox.showinfo("Hi", "Hello World!")
 
+
+def shutdown_pc():
+    print("do stuff to shutdown computer")
+    
+def clear_field():
+    print("clear input field")
 
 def run_clocking(msg = None):
     if msg is None:
@@ -90,11 +121,11 @@ def run_clocking(msg = None):
     
     
 def timestamp(msg = None):
-    action_type = 3
+    action_mode = 3
     
     #if in running mode change action to "Running"
     if (mp.is_working()):
-        action_type = 2
+        action_mode = 2
         
     print ("Timestamp")
     if msg is None:
@@ -103,7 +134,7 @@ def timestamp(msg = None):
             input = "Timestamp"
     else:
         input = msg
-    mp.stamp_time(action_type, False, input)
+    mp.stamp_time(action_mode, False, input)
     
     
 def goto_sleep():
@@ -116,6 +147,11 @@ def get_time_difference():
     
     input_start = mp.time_conversion(text_entry_start.get(), True)
     input_end = mp.time_conversion(text_entry_end.get(), True)
+    
+    text_entry_start.delete(0, END)
+    text_entry_end.delete(0, END)
+    text_entry_start.insert(0, mp.convert_to_time(input_start))
+    text_entry_end.insert(0, mp.convert_to_time(input_end))
     
     print("Get time diff", input_start, input_end)
     
@@ -139,19 +175,49 @@ def get_time_difference():
         ericsson_result_label.delete(1.0, END)
         ericsson_result_label.insert(1.0, eresult)
         ericsson_result_label.configure(state="disabled")
+
+def get_current_time():
+    print ("placeholder")
+    current_time = mp.convert_to_time(mp.time_conversion(mp.get_time()))
+    text_entry_end.delete(0, END)
+    text_entry_end.insert(0, current_time)
     
+
+def change_buttons():
+    global alternative_buttons
+    
+    #First set of buttons
+    if (alternative_buttons):
+        btn0["text"] = "Timestamp"
+        btn1["text"] = "Clear"
+        btn2["text"] = "Debug"
+        btn3["text"] = "2nd"
+        text_entry.configure(state="normal")
+        alternative_buttons = False
+        
+    #Second set of buttons
+    else:
+        btn0["text"] = "Sleep"
+        btn1["text"] = "Shutdown PC"
+        btn2["text"] = "Exit"
+        btn3["text"] = "1st"
+        text_entry.configure(state="disabled")
+        alternative_buttons = True
+        
     
 def debugging_stuff():
     print ("changing date")
     #txt = mp.change_Date()
-    #txt = mp.change_time()
-    #label.config(text = txt)
-    text_entry_start.insert(0, "12:05:15")
-    text_entry_end.insert(0, "12:15:35")
+    
+    txt = mp.change_time()
+    label.config(text = txt)
+    
+    #text_entry_start.insert(0, "12:05:15")
+    #text_entry_end.insert(0, "12:15:35")
     #mp.convert_to_ericsson_time("07:59:01")
     
     
-label = Label(frame1, text="Welcome!", fg="black", font="Verdana 30 bold") 
+label = Label(frame1, text="Beast!", fg="black", font="Verdana 30 bold") 
 label.pack() 
 
 start_btn = Button(frame1, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_clocking)
@@ -161,21 +227,20 @@ text_entry = Entry(frame2, width = 15)
 text_entry.grid(row = 0, column = 0)
 #text_entry.pack()
 
-debug_btn = Button(frame, text = "Debugging", width = 15, command = debugging_stuff)
-debug_btn.pack()
+btn3 = Button(frame, text = "2nd", width = 15, command = change_buttons)
+btn3.pack()
 
-stamp_btn = Button(frame2, text="Timestamp", width = 15, command = timestamp)
-stamp_btn.grid(row = 1, column = 0)
-#stamp_btn.pack()
+btn0 = Button(frame2, text="Timestamp", width = 15, command = btn0_action)
+btn0.grid(row = 0, column = 1)
+#btn0.pack()
 
-sleep_btn = Button(frame2, text = "Sleep", width = 15, command = goto_sleep)
-sleep_btn.grid(row = 0, column = 1)
-#sleep_btn.pack()
+btn1 = Button(frame2, text = "Clear", width = 15, command = btn1_action)
+btn1.grid(row = 1, column = 0)
+#btn1.pack()
 
-exit_btn = Button(frame2, text="Exit", width = 15, command = quit)
-exit_btn.grid(row = 1, column = 1)
-#exit_btn.pack()
-
+btn2 = Button(frame2, text="Debug", width = 15, command = btn2_action)
+btn2.grid(row = 1, column = 1)
+#btn2.pack()
 
 text_entry_start = Entry(frame3, width = 15)
 text_entry_start.grid(row = 0, column = 0)
@@ -186,8 +251,12 @@ text_entry_end.grid(row = 1, column = 0)
 diff_btn = Button(frame3, text="calculate", width = 15, command = get_time_difference)
 diff_btn.grid(row = 0, column = 1)
 
-label_etime = Label(frame3, text="Welcome!", fg="black") 
-label_etime.grid(row = 1, column = 1)
+
+get_time_btn = Button(frame3, text="Current time", width = 15, command = get_current_time)
+get_time_btn.grid(row = 1, column = 1)
+
+#label_etime = Label(frame3, text="Welcome!", fg="black") 
+#label_etime.grid(row = 1, column = 1)
 
 work_duration_label = Label(frame21, anchor = "w", text="Work duration", fg="black", width = 15) 
 work_duration_label.grid(row = 0, column = 0)

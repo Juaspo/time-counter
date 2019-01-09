@@ -38,13 +38,15 @@ sleep_time = 2
 debug_counter = 0
 
 #max allowed time passed between checks to not trigger sleep mode
-time_delay_limit = 600
+time_delay_limit = 9000
+soft_delay_limit = 100
 
 #debug function
 def change_Date():
     global date
     date = date - 1
     return date
+
 #debug funktion
 def change_time():
     global date
@@ -161,10 +163,10 @@ def time_conversion(t, is_string = False):
     else:
         t2 = t
         
-    if len(t2) < 3:
-        return None
+    while(len(t2) < 3):
+        t2.append(0)
         
-    print(t2)
+    #print(t2)
     return (t2[0]*3600+t2[1]*60+t2[2])
 
 def get_time():
@@ -264,7 +266,7 @@ def onExit():
     else:
         print("thread terminated")
 
-def stamp_time(action, timeout, msg = ""):
+def stamp_time(action_m, timeout, msg = ""):
     work_time = ""
     
     if (id_number != "000000000"):
@@ -274,9 +276,9 @@ def stamp_time(action, timeout, msg = ""):
             temp_time_value = time_conversion(get_time())
             
         work_time = get_time_diff(start_time, temp_time_value)
-        store_time_date(action, msg, work_time)
+        store_time_date(action_m, msg, work_time)
     else:
-        store_time_date(action, msg)
+        store_time_date(action_m, msg)
     
 
 def get_date():
@@ -301,6 +303,11 @@ def new_day():
         stamp_time(0, True, "timeout")
         begin_clocking("new-day")
         #date = temp_date #remove this (debug stuff)
+        
+    elif(temp_time_value + time_value_adjustment) > (time_value + soft_delay_limit):
+        stamp_time(2, True, "soft timeout")
+        stamp_time(2, False, "new-day soft timeout")
+        
     else:
         #print("No limit passed ::new day:: time difference:", temp_time_value+time_value_adjustment-time_value, "tmp", temp_time_value, "time:", time_value, "debug nr:", debug_counter)
         time_value = temp_time_value
@@ -335,6 +342,11 @@ def check_time():
             stamp_time(0, True, "timeout")
             begin_clocking("Rerun")
             time_value = temp_time_value
+        
+        elif temp_time_value > (time_value + soft_delay_limit):
+            #Delay is more than soft timeout approved delay
+            stamp_time(2, True, "soft timeout")
+            stamp_time(2, False, "soft resume")
         
         #time is within time check delay limit
         else:
