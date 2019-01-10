@@ -39,6 +39,9 @@ tabControl.pack(expand=1, fill="both")  # Pack to make visible
 tab2 = ttk.Frame(tabControl)            # Create a tab 
 tabControl.add(tab2, text='Conversion')      # Add the tab
 tabControl.pack(expand=1, fill="both")  # Pack to make visible
+tab3 = ttk.Frame(tabControl)            # Create a tab 
+tabControl.add(tab3, text='Configuration')      # Add the tab
+tabControl.pack(expand=1, fill="both")  # Pack to make visible
 
 #top.geometry("100x100")
 frame = Frame(tab1)
@@ -55,6 +58,10 @@ frame2.pack()
 
 frame3 = Frame(tab2)
 frame3.pack()
+
+frame4 = Frame(tab3)
+frame4.pack()
+
 
 alternative_buttons = False
 
@@ -80,8 +87,6 @@ def btn2_action():
 
 def btn3_action():
     change_buttons()
-
-
 
 
 def quit():
@@ -322,10 +327,8 @@ def main(argv):
         elif opt == "-s":
             run_clocking(arg)
             autostart = True
-        
-        
+            
         print ("auto start:", autostart, "timestamp:", take_timestamp, "argv:", argv, "opts:", opts)
-        
 
 if __name__ == '__main__':
     main(sys.argv[1:])
