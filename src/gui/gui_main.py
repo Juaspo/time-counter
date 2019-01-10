@@ -6,6 +6,8 @@ Created on 23 nov. 2018
 import time
 import sys, getopt
 
+import os
+
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
@@ -22,6 +24,7 @@ from pip._vendor.html5lib import _inputstream
 
 autostart = False
 take_timestamp = False
+shutdown_sequence = False
 
 
 top = Tk()
@@ -97,7 +100,24 @@ def quit():
 
 
 def shutdown_pc():
-    print("do stuff to shutdown computer")
+    global shutdown_sequence
+    
+    if (shutdown_sequence):
+        print ("Shutdown Aborted!")
+        label.config(text = "Aborted!", bg="#0e0")
+        os.system("shutdown /a")
+        shutdown_sequence = False
+        btn1["text"] = "Shutdown PC"
+        
+    else:
+        print ("Shutting down PC Good bye!")
+        label.config(text = "Shutdown!", bg="#e00")
+        if (mp.is_working()):
+            mp.stamp_time(4, False, "user")
+        print ("40 secs to shutdown")
+        os.system("shutdown /s /t 40 /c \"Time counter shutdown\" /f /d p:0:0")
+        shutdown_sequence = True
+        btn1["text"] = "Abort Shutdown"
     
 def clear_field():
     print("clear input field")
@@ -110,12 +130,12 @@ def run_clocking(msg = None):
         mp.end_clocking(msg)
         start_btn.config(text = "Start")
         txt = mp.time_value_content()
-        label.config(text = txt, bg="#e00")
+        label.config(text = txt, bg="#e99")
     else:
         mp.begin_clocking(msg)
         start_btn.config(text = "Stop")
         txt = mp.time_value_content()
-        label.config(text = txt, bg="#0e0")
+        label.config(text = txt, bg="#9e9")
     
     time.sleep(0.05)
     
@@ -198,7 +218,10 @@ def change_buttons():
     #Second set of buttons
     else:
         btn0["text"] = "Sleep"
-        btn1["text"] = "Shutdown PC"
+        if (shutdown_sequence):
+            btn1["text"] = "Abort Shutdown"
+        else:
+            btn1["text"] = "Shutdown PC"
         btn2["text"] = "Exit"
         btn3["text"] = "1st"
         text_entry.configure(state="disabled")
