@@ -29,6 +29,7 @@ take_timestamp = False
 shutdown_sequence = False
 
 
+
 top = Tk()
 top.minsize(width=250, height=150)
 
@@ -325,6 +326,8 @@ mp.initiate_parameters()
 def main(argv):
     global take_timestamp
     global autostart
+    
+    mp.check_and_restore()
     
     try:
         opts, args = getopt.getopt(argv, "hs:t:", ["help"])
