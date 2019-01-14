@@ -7,6 +7,8 @@ import time
 import os
 import threading
 import re
+import main.recovery_handler as rh
+
 
 #from main import thread_handler
 
@@ -372,8 +374,10 @@ def running(threadName = "Kim"):
         check_time()
     #debug_counter += 1
     
-
 def log_to_file(s):
+    
+    #rh.log_data_to_file(file_name, s)
+    
     # Open a file
     global file_name
     
