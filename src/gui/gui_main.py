@@ -13,12 +13,11 @@ from tkinter import messagebox
 from tkinter import ttk
 
 import main.main_program as mp
-import main.recovery_handler as rh
 import main.computer_control as cc
 
 from _overlapped import NULL
 from pip._vendor.html5lib import _inputstream
-from main.recovery_handler import retrieve_backup_data
+
 
 
 #import tkinter
@@ -243,7 +242,6 @@ def debugging_stuff():
     #txt = mp.change_time()
     #label.config(text = mp.convert_to_time(txt))
     
-    rh.log_data_to_file("test1\ttest2\ttest3")
     
     #text_entry_start.insert(0, "12:05:15")
     #text_entry_end.insert(0, "12:15:35")
@@ -257,10 +255,7 @@ def debugging_stuff2():
     #txt = mp.change_time()
     #label.config(text = mp.convert_to_time(txt))
     
-    retrieved_data = rh.retrieve_backup_data()
-    print("retrieved: ", retrieved_data)
-    
-    rh.delete_data_file()
+    print("retrieved: ")
     
     #text_entry_start.insert(0, "12:05:15")
     #text_entry_end.insert(0, "12:15:35")

@@ -4,10 +4,9 @@ Created on 23 nov. 2018
 @author: ezasaju
 '''
 import time
-import os
 import threading
 import re
-import main.recovery_handler as rh
+import main.file_handler as fh
 
 
 #from main import thread_handler
@@ -30,11 +29,12 @@ working = 0
 file_name = ""
 log_intro = ""
 id_number = "000000000"
-action_mode = ("Stopped", "Started", "Running", "No data", "Aborted")
+action_mode = ("Stopped", "Started", "Running", "No data", "Aborted", "Recovery")
 ericsson_time = 0
+recovery_file_name = ".data"
 
 debug_test_variable = 0
-
+recovery_interval = 60
 sleep_time = 2
 
 debug_counter = 0
@@ -85,10 +85,19 @@ class StoppableThread(threading.Thread):
         global working
         
         working = 1
+        delay_counter = 0
         print("Thread running!")
         while (not self.stopped()):
+            
             running("Kimpa")
+            
+            if(delay_counter > recovery_interval):
+                recovery_stamp_time()
+                delay_counter = 0
+            
             time.sleep(1)
+            delay_counter += 1
+            
         working = 0
             
 
@@ -125,16 +134,20 @@ def initiate_parameters():
     global counterThread
     global start_time
     
+    
     day = time.strftime("%a")
     date = get_date()
     month = time.strftime("%b")
     int_month = time.strftime("%m")
     year = time.strftime("%Y")
-    log_intro = "Log file: " + str(date).zfill(2) + " " + month + " " + year + "\n"
-    file_name = "logTime_" + str(int_month).zfill(2) + "-" + str(year) + ".txt"
+    log_intro = "Log file: " + str(date).zfill(2) + " " + month + " " + year + "\nday\tdate\t\tid number\ttime\t\twork time\tE///\taction\tmessage\n"
     time_value = time_conversion(get_time())
     start_time = time_value
     same_day = 0;
+    
+    file_name = "logTime_" + str(int_month).zfill(2) + "-" + str(year) + ".txt"
+    if fh.file_empty(file_name):
+        fh.write_data_to_file(file_name, "a", log_intro)
     
 
 def convert_to_ericsson_time(time_in):
@@ -189,7 +202,7 @@ def convert_to_time(t):
     str_time = (str(h).zfill(2) + ":" + str(m).zfill(2) + ":" + str(s).zfill(2))
     return str_time
 
-def store_time_date(action, msg, work_time = "--:--:--"):
+def store_time_date(action, msg, add_newline, work_time = "--:--:--"):
     global date
     global day
     global month
@@ -208,9 +221,11 @@ def store_time_date(action, msg, work_time = "--:--:--"):
     
     data_to_store = ""
     data_to_store = day + "\t" + str(date) + "/" + month + "/" + str(year) + "\t" + id_number + "\t" + convert_to_time(time_value) + "\t" + work_time + "\t" + ericsson_time + "\t" + action_mode[action] + "\t" + msg
+    if add_newline:
+        data_to_store = data_to_store + "\n"
     
     time_array.append(data_to_store)
-    log_to_file(data_to_store)
+    return data_to_store
 
 def get_time_diff(saved_time_value, current_time_value):
     if current_time_value < saved_time_value:
@@ -230,7 +245,9 @@ def begin_clocking(msg = ""):
     initiate_parameters()
     
     id_number = str(date) + str(int_month).zfill(2) + str(time_value)
-    store_time_date(1, msg)
+    s = store_time_date(1, msg, True)
+    fh.write_data_to_file(file_name, "a", s)
+    
     if not counterThread.isAlive():
         try:
             counterThread.start()
@@ -268,21 +285,26 @@ def onExit():
         counterThread.stop()
     else:
         print("thread terminated")
+        
+def get_work_time():
+    return get_time_diff(start_time, temp_time_value)
 
 def stamp_time(action_m, timeout, msg = ""):
-    work_time = ""
+    s = ""
     
-    if (id_number != "000000000"):
+    if (id_number == "000000000"):
+        s = store_time_date(action_m, msg, True)
+    
+    else:
         if timeout:
             temp_time_value = time_value
         else:
             temp_time_value = time_conversion(get_time())
             
-        work_time = get_time_diff(start_time, temp_time_value)
-        store_time_date(action_m, msg, work_time)
-    else:
-        store_time_date(action_m, msg)
+        
+        s = store_time_date(action_m, msg, True, get_work_time())
     
+    fh.write_data_to_file(file_name, "a", s)
 
 def get_date():
     return int(time.strftime("%d"))
@@ -373,20 +395,25 @@ def running(threadName = "Kim"):
     if(check_date()):
         check_time()
     #debug_counter += 1
-    
+
+
+def recovery_stamp_time():
+    s = store_time_date(5, "Auto", True, get_work_time())
+    fh.write_data_to_file(recovery_file_name, "w", s)
+
+'''
 def log_to_file(s):
-    
-    #rh.log_data_to_file(file_name, s)
     
     # Open a file
     global file_name
     
     #print("File!!", file_name, "content:", s)
-    fo = open(file_name, "a")
-    
+
     if os.stat(file_name).st_size == 0:
         fo.write(log_intro)
         fo.write("day\tdate\t\tid number\ttime\t\twork time\tE///\taction\tmessage\n")
     
     fo.write(s + "\n")
     fo.close()
+    
+    '''
