@@ -29,6 +29,7 @@ take_timestamp = False
 shutdown_sequence = False
 
 
+
 top = Tk()
 top.minsize(width=250, height=150)
 
@@ -95,7 +96,7 @@ def quit():
     if (mp.is_working()):
         MsgBox = messagebox.askyesno("Exit Application","Are you sure you want to exit the application", icon = "warning")
         if (MsgBox):
-            mp.stamp_time(4, False, "user")
+            mp.end_clocking(4, "user")
             top.destroy()
         else:
             print("Exit aborted")
@@ -134,7 +135,7 @@ def run_clocking(msg = None):
         msg = "user"
         
     if(mp.is_working()):
-        mp.end_clocking(msg)
+        mp.end_clocking(0, msg)
         start_btn.config(text = "Start")
         txt = mp.time_value_content()
         label.config(text = txt, bg="#e99")
@@ -325,6 +326,8 @@ mp.initiate_parameters()
 def main(argv):
     global take_timestamp
     global autostart
+    
+    mp.check_and_restore()
     
     try:
         opts, args = getopt.getopt(argv, "hs:t:", ["help"])

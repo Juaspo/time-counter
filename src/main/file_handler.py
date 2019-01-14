@@ -7,7 +7,7 @@ import os
 
 filename = ".data"
 
-def retrieve_backup_data(file_name):
+def read_data(file_name):
     read_data = None
     try:
         with open(file_name) as f:
@@ -39,11 +39,13 @@ def write_data_to_file(file_name, mode, s):
 def file_empty(file_name):
     try:
         if os.stat(file_name).st_size != 0:
+            print("File exists but not empty:", file_name)
             return False
         else:
+            print("File exist and is empty:", file_name)
             return True
         
     except IOError:
-        print("Could not read file")
+        print("Could not read file:", file_name)
         return True
     

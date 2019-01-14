@@ -29,12 +29,12 @@ working = 0
 file_name = ""
 log_intro = ""
 id_number = "000000000"
-action_mode = ("Stopped", "Started", "Running", "No data", "Aborted", "Recovery")
+action_mode = ("Stopped", "Started", "Running", "No data", "Aborted", "Recover")
 ericsson_time = 0
 recovery_file_name = ".data"
 
 debug_test_variable = 0
-recovery_interval = 60
+recovery_interval = 10
 sleep_time = 2
 
 debug_counter = 0
@@ -150,6 +150,8 @@ def initiate_parameters():
         fh.write_data_to_file(file_name, "a", log_intro)
     
 
+
+
 def convert_to_ericsson_time(time_in):
     #get time as string and split it up as separate ints
     k = [int(s) for s in re.findall(r'\b\d+\b', time_in)]
@@ -217,8 +219,6 @@ def store_time_date(action, msg, add_newline, work_time = "--:--:--"):
     else:
         ericsson_time = convert_to_ericsson_time(work_time)
     
-    print("E// time", ericsson_time)
-    
     data_to_store = ""
     data_to_store = day + "\t" + str(date) + "/" + month + "/" + str(year) + "\t" + id_number + "\t" + convert_to_time(time_value) + "\t" + work_time + "\t" + ericsson_time + "\t" + action_mode[action] + "\t" + msg
     if add_newline:
@@ -259,20 +259,22 @@ def begin_clocking(msg = ""):
         print ("Thread already running")
     
     
-def end_clocking(msg = ""):
+def end_clocking(action_mode, msg = ""):
     global working
     global time_value
     global temp_time_value
     global counterThread
     
     if working != 0:
-        stamp_time(0, False, msg)
+        stamp_time(action_mode, False, msg)
         
         counterThread.stop()
         counterThread.join()
         
         counterThread = StoppableThread()
         counterThread.setDaemon(True)
+        fh.delete_data_file(recovery_file_name)
+        
         return True
         
     else:
@@ -396,6 +398,14 @@ def running(threadName = "Kim"):
         check_time()
     #debug_counter += 1
 
+
+def check_and_restore():
+    if(fh.file_empty(recovery_file_name)):
+        print("no valid restore file")
+    else:
+        restore_data = fh.read_data(recovery_file_name)
+        fh.write_data_to_file(file_name, "a", restore_data)
+        fh.delete_data_file(recovery_file_name)
 
 def recovery_stamp_time():
     s = store_time_date(5, "Auto", True, get_work_time())
