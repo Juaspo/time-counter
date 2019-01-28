@@ -40,8 +40,8 @@ sleep_time = 2
 debug_counter = 0
 
 #max allowed time passed between checks to not trigger sleep mode
-time_delay_limit = 9000
-soft_delay_limit = 30
+TIME_DELAY_LIMIT = 9000
+SOFT_DELAY_LIMIT = 30
 
 
 #debug function
@@ -116,11 +116,11 @@ def test_case(msg=""):
     global temp_date
     global date
     
-    print ("\n", msg, "test#", test_nr, "\nday:", day, "temp_date:", temp_date, 
+    print("\n", msg, "test#", test_nr, "\nday:", day, "temp_date:", temp_date, 
            "date:", date, "temp_time:", temp_time_value, "time:", time_value, "\nTime array:")
     test_nr += 1
     for x in time_array:
-        print (x)
+        print(x)
     print("\n")
 
 
@@ -159,19 +159,19 @@ def convert_to_ericsson_time(time_in):
     #get time as string and split it up as separate ints
     k = [int(s) for s in re.findall(r'\b\d+\b', time_in)]
     hr = k[0]
-    min = k[1]
+    minute = k[1]
     sec = k[2]
     
     if sec>30:
-        min+=1
+        minute+=1
     
-    min = int(round(min/60 * 100, 0))
-    if min == 100:
+    minute = int(round(minute/60 * 100, 0))
+    if minute == 100:
         hr += 1
-        min = 0
+        minute = 0
     
     #Add trailing zero if value less than 10 for uniform output
-    etime = str(hr) + "," + str(min).zfill(2)
+    etime = str(hr) + "," + str(minute).zfill(2)
     return etime
     
 
@@ -219,20 +219,20 @@ def store_time_date(action, msg, add_newline, work_time="--:--:--"):
     global time_value
     global id_number
     global ericsson_time
-    
+
     if work_time == "--:--:--":
         ericsson_time = "--:--"
     else:
         ericsson_time = convert_to_ericsson_time(work_time)
-    
+
     data_to_store = ""
-    data_to_store = (day + "\t" + str(date) + "/" + month + "/" + str(year) + 
-                     "\t" + id_number + "\t" + convert_to_time(time_value) + 
-                     "\t" + work_time + "\t" + ericsson_time + "\t" + 
+    data_to_store = (day + "\t" + str(date) + "/" + month + "/" + str(year) +
+                     "\t" + id_number + "\t" + convert_to_time(time_value) +
+                     "\t" + work_time + "\t" + ericsson_time + "\t" +
                      action_mode[action] + "\t" + msg)
     if add_newline:
         data_to_store = data_to_store + "\n"
-    
+
     time_array.append(data_to_store)
     return data_to_store
 
@@ -251,73 +251,75 @@ def begin_clocking(msg=""):
     global int_month
     global temp_time_value
     global time_value
-    
+
     initiate_parameters()
-    
+
     id_number = str(date) + str(int_month).zfill(2) + str(time_value)
     s = store_time_date(1, msg, True)
     fh.write_data_to_file(file_name, "a", s)
-    
+
     if not counterThread.isAlive():
         try:
             counterThread.start()
             #threading.Thread(target=running).start()
-        except:
-            print ("Error: unable to start thread")
+        except Exception:
+            print("Error: unable to start thread")
         return True
     else:
-        print ("Thread already running")
-    
-    
-def end_clocking(action_mode, msg=""):
+        print("Thread already running")
+        return False
+
+
+def end_clocking(action_m, msg=""):
     global working
     global time_value
     global temp_time_value
     global counterThread
-    
+
     if working != 0:
-        stamp_time(action_mode, False, msg)
-        
+        stamp_time(action_m, False, msg)
+
         counterThread.stop()
         counterThread.join()
-        
+
         counterThread = StoppableThread()
         counterThread.setDaemon(True)
         fh.delete_data_file(recovery_file_name)
-        
+
         return True
-        
+
     else:
         stamp_time(3, False, msg)
         return False
 
-    
+
 def onExit():
-    if counterThread.isAlive()==True:
+    if counterThread.isAlive():
         print("thread is running still")
         counterThread.stop()
     else:
         print("thread terminated")
-        
+
 
 def get_work_time():
     return get_time_diff(start_time, temp_time_value)
 
 
 def stamp_time(action_m, timeout, msg=""):
+    global temp_time_value
     s = ""
-    
-    if (id_number == "000000000"):
+
+    if id_number == "000000000":
         s = store_time_date(action_m, msg, True)
-    
+
     else:
         if timeout:
             temp_time_value = time_value
         else:
             temp_time_value = time_conversion(get_time())
-        
+
         s = store_time_date(action_m, msg, True, get_work_time())
-    
+
     fh.write_data_to_file(file_name, "a", s)
 
 
@@ -332,75 +334,73 @@ def new_day():
     global time_value
     global temp_time_value
     global working
-    
+
 #   86400 for 24h adjustment times number of days between current and last check
-    time_value_adjustment = (temp_date - date) * 86400 
+    time_value_adjustment = (temp_date - date) * 86400
     day = time.strftime("%a") #update day for log
     temp_time_value = time_conversion(get_time())
-    
-#    print("temmp", temp_time_value, "time adju:", time_value_adjustment, 
-#    "time_value", time_value, "delay", time_delay_limit)
-#    print("if result:", str((temp_time_value + time_value_adjustment)), "and:", str((time_value + time_delay_limit)))
+
+#    print("temmp", temp_time_value, "time adju:", time_value_adjustment,
+#    "time_value", time_value, "delay", TIME_DELAY_LIMIT)
+#    print("if result:", str((temp_time_value + time_value_adjustment)), "and:", str((time_value + TIME_DELAY_LIMIT)))
 #    New day confirmed so check if limit passed over 23:59-00:00 mark
-    if (temp_time_value + time_value_adjustment) > (time_value + time_delay_limit):
+    if (temp_time_value + time_value_adjustment) > (time_value + TIME_DELAY_LIMIT):
         stamp_time(0, True, "timeout")
         begin_clocking("new-day")
         #date = temp_date #remove this (debug stuff)
-        
-    elif(temp_time_value + time_value_adjustment) > (time_value + soft_delay_limit):
+
+    elif(temp_time_value + time_value_adjustment) > (time_value + SOFT_DELAY_LIMIT):
         stamp_time(2, True, "soft timeout")
         time_value = temp_time_value
         date = temp_date
         stamp_time(2, False, "new-day soft timeout")
-        
+
     else:
         #print("No limit passed ::new day:: time difference:", temp_time_value+time_value_adjustment-time_value,
         #"tmp", temp_time_value, "time:", time_value, "debug nr:", debug_counter)
         time_value = temp_time_value
         date = temp_date
-        
+
 
 def check_date():
     global temp_date
     global date
     global same_day
     temp_date = get_date()
-    
+
     if temp_date != date:
         new_day()
-        return (0)
-    return(1)
+        return 0
+    return 1
 
 
 def check_time():
     global temp_time_value
     global time_value
-    global time_delay_limit
-    global working
-    
+
     temp_time_value = time_conversion(get_time())
-    
+
 #    check if time now (temp_time_value) is greater than last checked time
-    if temp_time_value >= time_value:
+    if (temp_time_value >= time_value):
         #check if time now exceed time delay limit for time check
-        if temp_time_value > (time_value + time_delay_limit):
+        if temp_time_value > (time_value + TIME_DELAY_LIMIT):
             #Delay is more than timeout approved delay
             stamp_time(0, True, "timeout")
             begin_clocking("Rerun")
             time_value = temp_time_value
-        
-        elif temp_time_value > (time_value + soft_delay_limit):
+
+        elif temp_time_value > (time_value + SOFT_DELAY_LIMIT):
 #            Delay is more than soft timeout approved delay
             stamp_time(2, True, "soft timeout")
             time_value = temp_time_value
             stamp_time(2, False, "soft resume")
-            
-        
+
+
 #        time is within time check delay limit
         else:
 #            update time_value to current time
             time_value = temp_time_value
-    
+
 #    Somehow temp_time_value is less than time_value which should be handled by new day
 #    so something is wrong if this is entered
     else:
@@ -408,18 +408,15 @@ def check_time():
 
 
 #Loop of regular checks if system is still active
-def running(threadName="Kim"):
-    global sleep_time
-    global debug_counter
-    global working
-    
-    if(check_date()):
+def running():
+    if check_date():
         check_time()
-#    debug_counter += 1
 
 
+#Check if a recovery file exists and restore if so
 def check_and_restore():
-    if(fh.file_empty(recovery_file_name)):
+    """Check if a recovery file exists and restore if so."""
+    if fh.file_empty(recovery_file_name):
         print("no valid restore file")
     else:
         restore_data = fh.read_data(recovery_file_name)
@@ -427,9 +424,11 @@ def check_and_restore():
         fh.delete_data_file(recovery_file_name)
 
 
+#Save a recovery print in case of unexpexted shutdown
 def recovery_stamp_time():
-    s = store_time_date(5, "Auto", True, get_work_time())
-    fh.write_data_to_file(recovery_file_name, "w", s)
+    """Save a recovery print in case of unexpexted shutdown."""
+    get_info_to_save = store_time_date(5, "Auto", True, get_work_time())
+    fh.write_data_to_file(recovery_file_name, "w", get_info_to_save)
 
 
 '''
@@ -446,5 +445,4 @@ def log_to_file(s):
     
     fo.write(s + "\n")
     fo.close()
-    
-    '''
+'''
