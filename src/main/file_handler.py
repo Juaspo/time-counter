@@ -7,6 +7,7 @@ import os
 
 filename = ".data"
 
+
 def read_data(file_name):
     read_data = None
     try:
@@ -19,6 +20,7 @@ def read_data(file_name):
         print("Could not read file")
     
     return read_data
+
 
 def delete_data_file(file_name):
     try:
@@ -36,6 +38,7 @@ def write_data_to_file(file_name, mode, s):
     fo.write(s)
     fo.close()
     
+
 def file_empty(file_name):
     try:
         if os.stat(file_name).st_size != 0:
