@@ -18,6 +18,7 @@ import main.computer_control as cc
 from _overlapped import NULL
 from pip._vendor.html5lib import _inputstream
 
+import main.file_handler as fh
 
 
 #import tkinter
@@ -67,7 +68,7 @@ config_frame0.pack()
 
 
 alternative_buttons = False
-
+config_file_name = ".config"
 
 def btn0_action():
     if (alternative_buttons):
@@ -92,10 +93,17 @@ def btn3_action():
     change_buttons()
 
 def config_reset_action():
-    pass
+    restore_data = fh.read_data(config_file_name)
+    if restore_data is not None:
+        text_entry_work_duration.delete(0, END)
+        text_entry_work_duration.insert(0, restore_data)
+    else:
+        print("No config found")
+        
 
 def config_save_action():
-    pass
+    textentry = text_entry_work_duration.get()
+    fh.write_data_to_file(config_file_name, "w", textentry)
 
 
 def quit():
@@ -348,6 +356,7 @@ def main(argv):
     global autostart
     
     mp.check_and_restore()
+    config_reset_action()
     
     try:
         opts, args = getopt.getopt(argv, "hs:t:", ["help"])
