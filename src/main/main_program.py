@@ -92,7 +92,7 @@ class StoppableThread(threading.Thread):
         print("Thread running!")
         while (not self.stopped()):
 
-            running("Kimpa")
+            running()
             
             if(delay_counter > recovery_interval):
                 recovery_stamp_time()
@@ -194,6 +194,12 @@ def time_conversion(t, is_string=False):
 def get_time():
     t = [int(time.strftime("%H")), int(time.strftime("%M")), int(time.strftime("%S"))]
     return t
+
+def get_time_value():
+    return time_value
+
+def get_start_time():
+    return start_time
 
 
 #Takes in time as decimal and returns time value as string

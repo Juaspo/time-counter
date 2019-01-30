@@ -19,6 +19,7 @@ from _overlapped import NULL
 from pip._vendor.html5lib import _inputstream
 
 import main.file_handler as fh
+from main.main_program import time_value
 
 
 #import tkinter
@@ -80,7 +81,7 @@ def btn1_action():
     if (alternative_buttons):
         shutdown_pc()
     else:
-        debugging_stuff2()
+        check_time()
 
 def btn2_action():
     if (alternative_buttons):
@@ -134,8 +135,9 @@ def shutdown_pc():
     else:
         print ("Shutting down PC Good bye!")
         label.config(text = "Shutdown!", bg="#e00")
+        
         if (mp.is_working()):
-            mp.stamp_time(4, False, "user")
+            mp.end_clocking(4, "user")
         print ("40 secs to shutdown")
         os.system("shutdown /s /t 40 /c \"Time counter shutdown\" /f /d p:0:0")
         shutdown_sequence = True
@@ -144,7 +146,7 @@ def shutdown_pc():
 def clear_field():
     print("clear input field")
 
-def run_clocking(msg = None):
+def run_end_clocking(msg = None):
     if msg is None:
         msg = "user"
         
@@ -225,14 +227,46 @@ def get_current_time():
     text_entry_end.insert(0, current_time)
     
 
+def check_time():
+    config_time_value = 0
+    time_value = 0
+    time_duration = 0
+    try:
+        fetch_config_time_value = mp.time_conversion(text_entry_work_duration.get(), True)
+        time_duration = mp.get_time_value() - mp.get_start_time()
+        
+        config_time_value = fetch_config_time_value - time_duration
+        time_left = mp.convert_to_time(abs(config_time_value))
+        
+        if(config_time_value <= 0):
+            label.config(text = time_left, bg="#9e9")
+            
+        else:
+            label.config(text = time_left, bg="#e99")
+         
+        '''   
+        #wait 1s and display start time again
+        temp_timer = mp.get_time_value()
+        while (temp_timer+2 < mp.get_time_value()):
+            pass
+        label.config(text = mp.convert_to_time(mp.get_start_time()), bg="#9e9")
+        '''
+            
+    except ValueError:
+        print("wrong format")
+    
+    
+    print("debug time left: ", time_left, " duration: ", time_duration)
+    
+
 def change_buttons():
     global alternative_buttons
     
     #First set of buttons
     if (alternative_buttons):
         btn0["text"] = "Timestamp"
-        btn1["text"] = "Clear"
-        btn2["text"] = "Debug"
+        btn1["text"] = "Check time"
+        btn2["text"] = "Starting time"
         btn3["text"] = "2nd"
         text_entry.configure(state="normal")
         alternative_buttons = False
@@ -251,7 +285,8 @@ def change_buttons():
         
     
 def debugging_stuff():
-    print ("write recovery")
+    label.config(text = mp.convert_to_time(mp.get_start_time()), bg="#9e9")
+    #print ("write recovery")
     #txt = mp.change_Date()
     
     #txt = mp.change_time()
@@ -264,13 +299,12 @@ def debugging_stuff():
     
     
 def debugging_stuff2():
-    print ("write recovery")
+    pass
+    #print ("write recovery")
     #txt = mp.change_Date()
     
     #txt = mp.change_time()
     #label.config(text = mp.convert_to_time(txt))
-    
-    print("retrieved: ")
     
     #text_entry_start.insert(0, "12:05:15")
     #text_entry_end.insert(0, "12:15:35")
@@ -280,7 +314,7 @@ def debugging_stuff2():
 label = Label(main_frame1, text="Beast!", fg="black", font="Verdana 30 bold") 
 label.pack() 
 
-start_btn = Button(main_frame1, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_clocking)
+start_btn = Button(main_frame1, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_end_clocking)
 start_btn.pack()
 
 text_entry = Entry(main_frame2, width = 15)
@@ -294,11 +328,11 @@ btn0 = Button(main_frame2, text="Timestamp", width = 15, command = btn0_action)
 btn0.grid(row = 0, column = 1)
 #btn0.pack()
 
-btn1 = Button(main_frame2, text = "DB2", width = 15, command = btn1_action)
+btn1 = Button(main_frame2, text = "Check time", width = 15, command = btn1_action)
 btn1.grid(row = 1, column = 0)
 #btn1.pack()
 
-btn2 = Button(main_frame2, text="Debug", width = 15, command = btn2_action)
+btn2 = Button(main_frame2, text="Starting time", width = 15, command = btn2_action)
 btn2.grid(row = 1, column = 1)
 #btn2.pack()
 
@@ -308,7 +342,7 @@ text_entry_start.grid(row = 0, column = 0)
 text_entry_end = Entry(conv_frame2, width = 15)
 text_entry_end.grid(row = 1, column = 0)
 
-diff_btn = Button(conv_frame2, text="calculate", width = 15, command = get_time_difference)
+diff_btn = Button(conv_frame2, text="Calculate", width = 15, command = get_time_difference)
 diff_btn.grid(row = 0, column = 1)
 
 get_time_btn = Button(conv_frame2, text="Current time", width = 15, command = get_current_time)
@@ -374,7 +408,7 @@ def main(argv):
             timestamp(arg)
             take_timestamp = True
         elif opt == "-s":
-            run_clocking(arg)
+            run_end_clocking(arg)
             autostart = True
             
         print ("auto start:", autostart, "timestamp:", take_timestamp, "argv:", argv, "opts:", opts)
