@@ -47,23 +47,23 @@ tabControl.add(tab3, text='Configuration')      # Add the tab
 tabControl.pack(expand=1, fill="both")  # Pack to make visible
 
 #top.geometry("100x100")
-frame = Frame(tab1)
-frame.pack()
+main_frame0 = Frame(tab1)
+main_frame0.pack()
 
-frame1 = Frame(frame)
-frame1.pack()
+main_frame1 = Frame(main_frame0)
+main_frame1.pack()
 
-frame21 = Frame(tab2)
-frame21.pack()
+main_frame2 = Frame(main_frame0)
+main_frame2.pack()
 
-frame2 = Frame(frame)
-frame2.pack()
+conv_frame1 = Frame(tab2)
+conv_frame1.pack()
 
-frame3 = Frame(tab2)
-frame3.pack()
+conv_frame2 = Frame(tab2)
+conv_frame2.pack()
 
-frame4 = Frame(tab3)
-frame4.pack()
+config_frame0 = Frame(tab3)
+config_frame0.pack()
 
 
 alternative_buttons = False
@@ -90,6 +90,12 @@ def btn2_action():
 
 def btn3_action():
     change_buttons()
+
+def config_reset_action():
+    pass
+
+def config_save_action():
+    pass
 
 
 def quit():
@@ -263,63 +269,77 @@ def debugging_stuff2():
     #mp.convert_to_ericsson_time("07:59:01")
     
     
-label = Label(frame1, text="Beast!", fg="black", font="Verdana 30 bold") 
+label = Label(main_frame1, text="Beast!", fg="black", font="Verdana 30 bold") 
 label.pack() 
 
-start_btn = Button(frame1, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_clocking)
+start_btn = Button(main_frame1, text = "Start", font="Verdana 20 bold", width = 10, height = 5, command = run_clocking)
 start_btn.pack()
 
-text_entry = Entry(frame2, width = 15)
+text_entry = Entry(main_frame2, width = 15)
 text_entry.grid(row = 0, column = 0)
 #text_entry.pack()
 
-btn3 = Button(frame, text = "2nd", width = 15, command = change_buttons)
+btn3 = Button(main_frame0, text = "2nd", width = 15, command = change_buttons)
 btn3.pack()
 
-btn0 = Button(frame2, text="Timestamp", width = 15, command = btn0_action)
+btn0 = Button(main_frame2, text="Timestamp", width = 15, command = btn0_action)
 btn0.grid(row = 0, column = 1)
 #btn0.pack()
 
-btn1 = Button(frame2, text = "DB2", width = 15, command = btn1_action)
+btn1 = Button(main_frame2, text = "DB2", width = 15, command = btn1_action)
 btn1.grid(row = 1, column = 0)
 #btn1.pack()
 
-btn2 = Button(frame2, text="Debug", width = 15, command = btn2_action)
+btn2 = Button(main_frame2, text="Debug", width = 15, command = btn2_action)
 btn2.grid(row = 1, column = 1)
 #btn2.pack()
 
-text_entry_start = Entry(frame3, width = 15)
+text_entry_start = Entry(conv_frame2, width = 15)
 text_entry_start.grid(row = 0, column = 0)
 
-text_entry_end = Entry(frame3, width = 15)
+text_entry_end = Entry(conv_frame2, width = 15)
 text_entry_end.grid(row = 1, column = 0)
 
-diff_btn = Button(frame3, text="calculate", width = 15, command = get_time_difference)
+diff_btn = Button(conv_frame2, text="calculate", width = 15, command = get_time_difference)
 diff_btn.grid(row = 0, column = 1)
 
-
-get_time_btn = Button(frame3, text="Current time", width = 15, command = get_current_time)
+get_time_btn = Button(conv_frame2, text="Current time", width = 15, command = get_current_time)
 get_time_btn.grid(row = 1, column = 1)
 
-#label_etime = Label(frame3, text="Welcome!", fg="black") 
+#label_etime = Label(conv_frame2, text="Welcome!", fg="black") 
 #label_etime.grid(row = 1, column = 1)
 
-work_duration_label = Label(frame21, anchor = "w", text="Work duration", fg="black", width = 15) 
+work_duration_label = Label(conv_frame1, anchor = "w", text="Work duration", fg="black", width = 15) 
 work_duration_label.grid(row = 0, column = 0)
 
-ericsson_time_label = Label(frame21, anchor = "w", text="Ericsson time", fg="black", width = 15) 
+ericsson_time_label = Label(conv_frame1, anchor = "w", text="Ericsson time", fg="black", width = 15) 
 ericsson_time_label.grid(row = 1, column = 0)
 
 
-duration_result_label = Text(frame21, height = 1, borderwidth = 0, width = 15) 
+duration_result_label = Text(conv_frame1, height = 1, borderwidth = 0, width = 15) 
 duration_result_label.insert(1.0, "--:--:--")
 duration_result_label.grid(row = 0, column = 1)
 duration_result_label.configure(state="disabled")
 
-ericsson_result_label = Text(frame21, height = 1, borderwidth = 0, width = 15)
+ericsson_result_label = Text(conv_frame1, height = 1, borderwidth = 0, width = 15)
 ericsson_result_label.insert(1.0, "--:--")
 ericsson_result_label.grid(row = 1, column = 1)
 ericsson_result_label.configure(state="disabled")
+
+
+text_entry_work_duration = Entry(config_frame0, width = 15)
+text_entry_work_duration.grid(row = 0, column = 1)
+#text_entry_work_duration.insert(1.0, "--:--")
+
+ericsson_time_label = Label(config_frame0, anchor = "w", text="Work duration", fg="black", width = 15) 
+ericsson_time_label.grid(row = 0, column = 0)
+
+
+config_reset_btn = Button(config_frame0, text="Reset", width = 15, command = config_reset_action)
+config_reset_btn.grid(row = 3, column = 0)
+config_save_btn = Button(config_frame0, text="Save", width = 15, command = config_save_action)
+config_save_btn.grid(row = 3, column = 1)
+
 
 mp.initiate_parameters()
     
