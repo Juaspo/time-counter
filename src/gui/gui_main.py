@@ -19,7 +19,7 @@ from _overlapped import NULL
 from pip._vendor.html5lib import _inputstream
 
 import main.file_handler as fh
-from main.main_program import time_value
+from main.main_program import old_time_value
 
 
 #import tkinter
@@ -95,16 +95,51 @@ def btn3_action():
 
 def config_reset_action():
     restore_data = fh.read_data(config_file_name)
+    config_values = []
+    
+    for config_value in iter(restore_data.splitlines()):
+        config_values.append(config_value)
+        
+    
     if restore_data is not None:
-        text_entry_work_duration.delete(0, END)
-        text_entry_work_duration.insert(0, restore_data)
+        try:
+            text_entry_work_duration.delete(0, END)
+            text_entry_work_duration.insert(0, config_values[0])
+            hard_limit_text_entry.delete(0, END)
+            hard_limit_text_entry.insert(0, config_values[1])
+            soft_limit_text_entry.delete(0, END)
+            soft_limit_text_entry.insert(0, config_values[2])
+            shutdown_delay_text_entry.delete(0, END)
+            shutdown_delay_text_entry.insert(0, config_values[3])
+        except IndexError:
+            print("Incomplete config file")
+        
+        
     else:
         print("No config found")
         
 
+def set_limits(soft_l, hard_l):
+    try:
+        mp.set_soft_delay_limit(int(soft_l))
+    except ValueError:
+        print("Soft limit not a number")
+    
+    try:
+        mp.set_soft_delay_limit(int(hard_l))
+    except ValueError:
+        print("Hard limit not a number")
+    
+
+
 def config_save_action():
     textentry = text_entry_work_duration.get()
+    textentry += "\n" + hard_limit_text_entry.get()
+    textentry += "\n" + soft_limit_text_entry.get()
+    textentry += "\n" + shutdown_delay_text_entry.get()
+    
     fh.write_data_to_file(config_file_name, "w", textentry)
+    set_limits(soft_limit_text_entry.get(), hard_limit_text_entry.get())
 
 
 def quit():
@@ -138,8 +173,22 @@ def shutdown_pc():
         
         if (mp.is_working()):
             mp.end_clocking(4, "user")
-        print ("40 secs to shutdown")
-        os.system("shutdown /s /t 40 /c \"Time counter shutdown\" /f /d p:0:0")
+        
+        
+        try:
+            int(shutdown_delay_text_entry.get())
+            shutdown_time = shutdown_delay_text_entry.get()
+        except ValueError:
+            shutdown_time = "40"
+            print("Shutdown time not a number! Default 40s set")
+            
+        
+        print (shutdown_time, "secs to shutdown")
+        sequence = "shutdown /s /t " + shutdown_time + " /c \"Time counter shutdown\" /f /d p:0:0"
+        print("seq", sequence)
+        #os.system("shutdown /s /t 40 /c \"Time counter shutdown\" /f /d p:0:0")
+        os.system(sequence)
+        
         shutdown_sequence = True
         btn1["text"] = "Abort Shutdown"
     
@@ -229,7 +278,7 @@ def get_current_time():
 
 def check_time():
     config_time_value = 0
-    time_value = 0
+    old_time_value = 0
     time_duration = 0
     try:
         fetch_config_time_value = mp.time_conversion(text_entry_work_duration.get(), True)
@@ -369,18 +418,38 @@ ericsson_result_label.grid(row = 1, column = 1)
 ericsson_result_label.configure(state="disabled")
 
 
+
+
+###################### Configuration Pane
+work_hours_label = Label(config_frame0, anchor = "w", text="Work hours", fg="black", width = 15) 
+work_hours_label.grid(row = 0, column = 0)
+
 text_entry_work_duration = Entry(config_frame0, width = 15)
 text_entry_work_duration.grid(row = 0, column = 1)
 #text_entry_work_duration.insert(1.0, "--:--")
 
-ericsson_time_label = Label(config_frame0, anchor = "w", text="Work duration", fg="black", width = 15) 
-ericsson_time_label.grid(row = 0, column = 0)
+hard_limit_label = Label(config_frame0, anchor = "w", text="Hard limit time", fg="black", width = 15) 
+hard_limit_label.grid(row = 1, column = 0)
 
+hard_limit_text_entry = Entry(config_frame0, width = 15)
+hard_limit_text_entry.grid(row = 1, column = 1)
+
+soft_limit_label = Label(config_frame0, anchor = "w", text="Soft limit time", fg="black", width = 15) 
+soft_limit_label.grid(row = 2, column = 0)
+
+soft_limit_text_entry = Entry(config_frame0, width = 15)
+soft_limit_text_entry.grid(row = 2, column = 1)
+
+shutdown_delay_label = Label(config_frame0, anchor = "w", text="Shutdown delay", fg="black", width = 15) 
+shutdown_delay_label.grid(row = 3, column = 0)
+
+shutdown_delay_text_entry = Entry(config_frame0, width = 15)
+shutdown_delay_text_entry.grid(row = 3, column = 1)
 
 config_reset_btn = Button(config_frame0, text="Reset", width = 15, command = config_reset_action)
-config_reset_btn.grid(row = 3, column = 0)
+config_reset_btn.grid(row = 6, column = 0)
 config_save_btn = Button(config_frame0, text="Save", width = 15, command = config_save_action)
-config_save_btn.grid(row = 3, column = 1)
+config_save_btn.grid(row = 6, column = 1)
 
 
 mp.initiate_parameters()
@@ -391,6 +460,7 @@ def main(argv):
     
     mp.check_and_restore()
     config_reset_action()
+    set_limits(soft_limit_text_entry.get(), hard_limit_text_entry.get())
     
     try:
         opts, args = getopt.getopt(argv, "hs:t:", ["help"])
