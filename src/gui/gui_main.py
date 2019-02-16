@@ -19,7 +19,7 @@ from _overlapped import NULL
 from pip._vendor.html5lib import _inputstream
 
 import main.file_handler as fh
-from main.main_program import old_time_value
+from main.main_program import old_time_value, set_start_time
 
 
 #import tkinter
@@ -111,6 +111,8 @@ def config_reset_action():
             soft_limit_text_entry.insert(0, config_values[2])
             shutdown_delay_text_entry.delete(0, END)
             shutdown_delay_text_entry.insert(0, config_values[3])
+            new_start_time_entry.delete(0, END)
+            new_start_time_entry.insert(0, config_values[4])
         except IndexError:
             print("Incomplete config file")
         
@@ -119,6 +121,15 @@ def config_reset_action():
         print("No config found")
         
 
+def set_new_start_time():
+    try:
+        new_time = mp.time_conversion(new_start_time_entry.get(), True)
+        print("New start time:", new_time, "\nfrom:", new_start_time_entry.get())
+        mp.set_start_time(new_time)
+    except ValueError:
+        print("New start time not a number")
+
+
 def set_limits(soft_l, hard_l):
     try:
         mp.set_soft_delay_limit(int(soft_l))
@@ -126,7 +137,7 @@ def set_limits(soft_l, hard_l):
         print("Soft limit not a number")
     
     try:
-        mp.set_soft_delay_limit(int(hard_l))
+        mp.set_time_delay_limit(int(hard_l))
     except ValueError:
         print("Hard limit not a number")
     
@@ -137,6 +148,7 @@ def config_save_action():
     textentry += "\n" + hard_limit_text_entry.get()
     textentry += "\n" + soft_limit_text_entry.get()
     textentry += "\n" + shutdown_delay_text_entry.get()
+    textentry += "\n" + new_start_time_entry.get()
     
     fh.write_data_to_file(config_file_name, "w", textentry)
     set_limits(soft_limit_text_entry.get(), hard_limit_text_entry.get())
@@ -445,6 +457,12 @@ shutdown_delay_label.grid(row = 3, column = 0)
 
 shutdown_delay_text_entry = Entry(config_frame0, width = 15)
 shutdown_delay_text_entry.grid(row = 3, column = 1)
+
+new_start_time_button = Button(config_frame0, text="Set start time", width = 15, command = set_new_start_time) 
+new_start_time_button.grid(row = 4, column = 0)
+
+new_start_time_entry = Entry(config_frame0, width = 15)
+new_start_time_entry.grid(row = 4, column = 1)
 
 config_reset_btn = Button(config_frame0, text="Reset", width = 15, command = config_reset_action)
 config_reset_btn.grid(row = 6, column = 0)

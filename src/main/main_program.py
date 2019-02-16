@@ -203,10 +203,19 @@ def get_time_value():
 def get_start_time():
     return start_time
 
+def set_start_time(new_time):
+    global start_time
+    global old_time_value
+    
+    start_time = new_time
+    temp = old_time_value
+    old_time_value = new_time
+    s = store_time_date(2, "New start time", True, get_time_diff(start_time, temp))
+    fh.write_data_to_file(file_name, "a", s)
+    old_time_value = temp
 
 def set_time_delay_limit(new_time):
     time_delay_limit = new_time
-
 
 def set_soft_delay_limit(new_time):
     soft_delay_limit = new_time
@@ -407,7 +416,6 @@ def check_time():
             stamp_time(2, True, "soft timeout")
             old_time_value = temp_time_value
             stamp_time(2, False, "soft resume")
-
 
 #        time is within time check delay limit
         else:
