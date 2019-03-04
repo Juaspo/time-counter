@@ -72,18 +72,21 @@ alternative_buttons = False
 config_file_name = ".config"
 
 def btn0_action():
+    check_if_runnung()
     if (alternative_buttons):
         goto_sleep()
     else:
         timestamp()
 
 def btn1_action():
+    check_if_runnung()
     if (alternative_buttons):
         shutdown_pc()
     else:
         check_time()
 
 def btn2_action():
+    check_if_runnung()
     if (alternative_buttons):
         quit()
     else:
@@ -91,6 +94,7 @@ def btn2_action():
 
 
 def btn3_action():
+    check_if_runnung()
     change_buttons()
 
 def config_reset_action():
@@ -174,14 +178,15 @@ def shutdown_pc():
     
     if (shutdown_sequence):
         print ("Shutdown Aborted!")
-        label.config(text = "Aborted!", bg="#0e0")
+        label.config(text = "Aborted!")
         os.system("shutdown /a")
         shutdown_sequence = False
         btn1["text"] = "Shutdown PC"
+        check_if_runnung()
         
     else:
         print ("Shutting down PC Good bye!")
-        label.config(text = "Shutdown!", bg="#e00")
+        label.config(text = "Shutdown!", bg="#e00", fg="#000")
         
         if (mp.is_working()):
             mp.end_clocking(4, "user")
@@ -215,15 +220,15 @@ def run_end_clocking(msg = None):
         mp.end_clocking(0, msg)
         start_btn.config(text = "Start")
         txt = mp.time_value_content()
-        label.config(text = txt, bg="#e99")
+        label.config(text = txt)
     else:
         mp.begin_clocking(msg)
         start_btn.config(text = "Stop")
         txt = mp.time_value_content()
-        label.config(text = txt, bg="#9e9")
+        label.config(text = txt, fg="#000")
     
     time.sleep(0.05)
-    
+    check_if_runnung()
     
 def timestamp(msg = None):
     action_mode = 3
@@ -282,42 +287,56 @@ def get_time_difference():
         ericsson_result_label.configure(state="disabled")
 
 def get_current_time():
-    print ("placeholder")
+    #print ("placeholder")
+    check_if_runnung()
     current_time = mp.convert_to_time(mp.time_conversion(mp.get_time()))
     text_entry_end.delete(0, END)
     text_entry_end.insert(0, current_time)
-    
+
+def check_if_runnung():
+    if mp.is_working():
+        label.config(bg="#9e9")
+        start_btn.config(text = "Stop")
+    else:
+        label.config(bg="#e99")
+        start_btn.config(text = "Start")
 
 def check_time():
+    check_if_runnung()
+    
     config_time_value = 0
     old_time_value = 0
     time_duration = 0
-    try:
-        fetch_config_time_value = mp.time_conversion(text_entry_work_duration.get(), True)
-        time_duration = mp.get_time_value() - mp.get_start_time()
-        
-        config_time_value = fetch_config_time_value - time_duration
-        time_left = mp.convert_to_time(abs(config_time_value))
-        
-        if(config_time_value <= 0):
-            label.config(text = time_left, bg="#9e9")
+    if mp.is_working():
+        try:
+            fetch_config_time_value = mp.time_conversion(text_entry_work_duration.get(), True)
+            time_duration = mp.get_time_value() - mp.get_start_time()
             
-        else:
-            label.config(text = time_left, bg="#e99")
-         
-        '''   
-        #wait 1s and display start time again
-        temp_timer = mp.get_time_value()
-        while (temp_timer+2 < mp.get_time_value()):
-            pass
-        label.config(text = mp.convert_to_time(mp.get_start_time()), bg="#9e9")
-        '''
+            config_time_value = fetch_config_time_value - time_duration
+            time_left = mp.convert_to_time(abs(config_time_value))
             
-    except ValueError:
-        print("wrong format")
-    
-    
-    print("debug time left: ", time_left, " duration: ", time_duration)
+            if(config_time_value <= 0):
+                label.config(text = time_left, fg="#0f0")
+                
+            else:
+                label.config(text = time_left, fg="#f00")
+             
+            '''   
+            #wait 1s and display start time again
+            temp_timer = mp.get_time_value()
+            while (temp_timer+2 < mp.get_time_value()):
+                pass
+            label.config(text = mp.convert_to_time(mp.get_start_time()))
+            '''
+                
+        except ValueError:
+            print("wrong format")
+        
+        
+        #print("debug time left: ", time_left, " duration: ", time_duration)
+    else:
+        print("timer not running!")
+        label.config(text = "no run!", fg="#000")
     
 
 def change_buttons():
@@ -346,7 +365,7 @@ def change_buttons():
         
     
 def debugging_stuff():
-    label.config(text = mp.convert_to_time(mp.get_start_time()), bg="#9e9")
+    label.config(text = mp.convert_to_time(mp.get_start_time()), fg="#000")
     #print ("write recovery")
     #txt = mp.change_Date()
     
