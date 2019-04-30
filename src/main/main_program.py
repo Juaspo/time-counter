@@ -358,7 +358,7 @@ def new_day():
 
 #   86400 for 24h adjustment times number of days between current and last check
     time_value_adjustment = (temp_date - date) * 86400
-    day = time.strftime("%a") #update day for log
+
     temp_time_value = time_conversion(get_time())
 
 #    print("temmp", temp_time_value, "time adju:", time_value_adjustment,
@@ -374,7 +374,9 @@ def new_day():
         stamp_time(2, True, "soft timeout")
         old_time_value = temp_time_value
         date = temp_date
+        day = time.strftime("%a") #update day for log
         stamp_time(2, False, "new-day soft timeout")
+        
 
     else:
         #print("No limit passed ::new day:: time difference:", temp_time_value+time_value_adjustment-old_time_value,

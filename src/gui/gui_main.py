@@ -4,7 +4,7 @@ Created on 23 nov. 2018
 @author: ezasaju
 '''
 import time
-import sys, getopt
+import getopt
 
 import os
 
@@ -15,11 +15,8 @@ from tkinter import ttk
 import main.main_program as mp
 import main.computer_control as cc
 
-from _overlapped import NULL
-from pip._vendor.html5lib import _inputstream
 
 import main.file_handler as fh
-from main.main_program import old_time_value, set_start_time
 
 
 #import tkinter
@@ -88,7 +85,7 @@ def btn1_action():
 def btn2_action():
     check_if_runnung()
     if (alternative_buttons):
-        quit()
+        quit_func()
     else:
         debugging_stuff()
 
@@ -158,7 +155,7 @@ def config_save_action():
     set_limits(soft_limit_text_entry.get(), hard_limit_text_entry.get())
 
 
-def quit():
+def quit_func():
     if (mp.is_working()):
         MsgBox = messagebox.askyesno("Exit Application","Are you sure you want to exit the application", icon = "warning")
         if (MsgBox):
@@ -186,7 +183,7 @@ def shutdown_pc():
         
     else:
         print ("Shutting down PC Good bye!")
-        label.config(text = "Shutdown!", bg="#e00", fg="#000")
+        label.config(text = "Shutdown!", bg="#d00", fg="#000")
         
         if (mp.is_working()):
             mp.end_clocking(4, "user")
@@ -316,10 +313,10 @@ def check_time():
             time_left = mp.convert_to_time(abs(config_time_value))
             
             if(config_time_value <= 0):
-                label.config(text = time_left, fg="#0f0")
+                label.config(text = time_left, fg="#070")
                 
             else:
-                label.config(text = time_left, fg="#f00")
+                label.config(text = time_left, fg="#700")
              
             '''   
             #wait 1s and display start time again
